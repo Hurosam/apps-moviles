@@ -1,5 +1,6 @@
 package com.example.ta4;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -7,6 +8,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -20,6 +25,7 @@ public class MainActivity3 extends AppCompatActivity {
     RecyclerView recyclerView;
     RecyclerAdapter recyclerAdapter;
     List<Gasto> listaGastos;
+    ActivityResultLauncher<Intent> agregarGastoLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +46,24 @@ public class MainActivity3 extends AppCompatActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(recyclerAdapter);
+
+        agregarGastoLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            double monto = data.getDoubleExtra("NUEVO_MONTO", 0.0);
+                            String categoria = data.getStringExtra("NUEVA_CATEGORIA");
+                            String fecha = data.getStringExtra("NUEVA_FECHA");
+                            String descripcion = data.getStringExtra("NUEVA_DESCRIPCION");
+
+                            Gasto nuevoGasto = new Gasto(monto, categoria, fecha, descripcion);
+                            listaGastos.add(nuevoGasto);
+                            recyclerAdapter.notifyItemInserted(listaGastos.size() - 1);
+                        }
+                    }
+                });
     }
 
     @Override
@@ -78,6 +102,6 @@ public class MainActivity3 extends AppCompatActivity {
 
     public void gastos(View view) {
         Intent intent = new Intent(MainActivity3.this, MainActivity6.class);
-        startActivity(intent);
+        agregarGastoLauncher.launch(intent);
     }
 }
