@@ -1,31 +1,35 @@
 package com.example.ta4;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-
-import androidx.activity.EdgeToEdge;
+import android.widget.EditText;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity7 extends AppCompatActivity {
+
+    private EditText editTextNombreCategoria;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main7);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        editTextNombreCategoria = findViewById(R.id.editTextText5);
     }
 
     public void guardarCategoria(View view) {
-        Intent intent = new Intent(MainActivity7.this, MainActivity5.class);
-        startActivity(intent);
+        String nombreCategoria = editTextNombreCategoria.getText().toString();
+
+        if (nombreCategoria.isEmpty()) {
+            Toast.makeText(this, "Por favor, ingrese un nombre para la categoría", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("NUEVA_CATEGORIA_NOMBRE", nombreCategoria);
+        setResult(Activity.RESULT_OK, resultIntent);
+        finish();
     }
 }

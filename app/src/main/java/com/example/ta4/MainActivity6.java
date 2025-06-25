@@ -1,7 +1,5 @@
 package com.example.ta4;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -38,14 +36,10 @@ public class MainActivity6 extends AppCompatActivity {
         }
 
         double monto = Double.parseDouble(montoStr);
+        Gasto nuevoGasto = new Gasto(monto, categoriaStr, fechaStr, descripcionStr);
 
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("NUEVO_MONTO", monto);
-        resultIntent.putExtra("NUEVA_CATEGORIA", categoriaStr);
-        resultIntent.putExtra("NUEVA_FECHA", fechaStr);
-        resultIntent.putExtra("NUEVA_DESCRIPCION", descripcionStr);
+        MainActivity3.listaGastos.add(nuevoGasto);
 
-        setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }
 }
