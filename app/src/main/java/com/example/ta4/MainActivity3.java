@@ -31,9 +31,9 @@ public class MainActivity3 extends AppCompatActivity {
         getSupportActionBar().setTitle("Mis Gastos");
 
         if (listaGastos.isEmpty()) {
-            listaGastos.add(new Gasto(20.50, "Comida", "24/05/2024", "Almuerzo"));
-            listaGastos.add(new Gasto(18.00, "Transporte", "24/05/2024", "Taxi al trabajo"));
-            listaGastos.add(new Gasto(50.00, "Ocio", "23/05/2024", "Entrada al cine"));
+            listaGastos.add(new Gasto(20.50, "Comida", "cena","24/05/2024", "Almuerzo"));
+            listaGastos.add(new Gasto(18.00, "Transporte", "taxi","24/05/2024", "Taxi al trabajo"));
+            listaGastos.add(new Gasto(50.00, "Ocio", "cine","23/05/2024", "Entrada al cine"));
         }
 
         recyclerView = findViewById(R.id.recyclerViewGastos);

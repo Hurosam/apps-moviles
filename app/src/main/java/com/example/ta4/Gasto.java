@@ -3,12 +3,14 @@ package com.example.ta4;
 public class Gasto {
     private double monto;
     private String categoria;
+    private String etiqueta;
     private String fecha;
     private String descripcion;
 
-    public Gasto(double monto, String categoria, String fecha, String descripcion) {
+    public Gasto(double monto, String categoria, String etiqueta, String fecha, String descripcion) {
         this.monto = monto;
         this.categoria = categoria;
+        this.etiqueta = etiqueta;
         this.fecha = fecha;
         this.descripcion = descripcion;
     }
@@ -43,5 +45,13 @@ public class Gasto {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public String getEtiqueta() {
+        return etiqueta;
+    }
+
+    public void setEtiqueta(String etiqueta) {
+        this.etiqueta = etiqueta;
     }
 }
