@@ -37,13 +37,7 @@ public class MainActivity6 extends AppCompatActivity {
             return;
         }
 
-        double monto;
-        try {
-            monto = Double.parseDouble(montoStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Por favor, ingrese un monto válido", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        double monto = Double.parseDouble(montoStr);
 
         Intent resultIntent = new Intent();
         resultIntent.putExtra("NUEVO_MONTO", monto);
