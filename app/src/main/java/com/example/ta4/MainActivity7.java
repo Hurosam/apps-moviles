@@ -1,7 +1,5 @@
 package com.example.ta4;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -16,6 +14,7 @@ public class MainActivity7 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main7);
+
         editTextNombreCategoria = findViewById(R.id.editTextText5);
     }
 
@@ -27,9 +26,9 @@ public class MainActivity7 extends AppCompatActivity {
             return;
         }
 
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("NUEVA_CATEGORIA_NOMBRE", nombreCategoria);
-        setResult(Activity.RESULT_OK, resultIntent);
+        Categoria nuevaCategoria = new Categoria(nombreCategoria);
+        MainActivity5.listaCategorias.add(nuevaCategoria);
+
         finish();
     }
 }
