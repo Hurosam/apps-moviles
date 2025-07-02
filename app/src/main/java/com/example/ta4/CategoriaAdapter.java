@@ -1,5 +1,7 @@
 package com.example.ta4;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +43,16 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.View
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewNombre = itemView.findViewById(R.id.item_nombre_categoria);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Context context = v.getContext();
+                    Intent intent = new Intent(context, MainActivity7.class);
+                    intent.putExtra("CATEGORIA_POSITION", getAdapterPosition());
+                    context.startActivity(intent);
+                }
+            });
         }
     }
 }
