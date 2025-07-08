@@ -28,18 +28,17 @@
         android:ems="10"
         android:hint="Ingrese monto (*)"
         android:inputType="numberDecimal"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
-    <EditText
-        android:id="@+id/editTextText2"
+    <Spinner
+        android:id="@+id/spinnerCategoria"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:ems="10"
-        android:hint="Ingrese categoría (*)"
-        android:inputType="text"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextNumberDecimal" />
@@ -52,20 +51,22 @@
         android:ems="10"
         android:hint="Ingrese etiqueta (opcional)"
         android:inputType="text"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText2" />
+        app:layout_constraintTop_toBottomOf="@+id/spinnerCategoria" />
 
     <EditText
         android:id="@+id/editTextDate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:ems="10"
-        android:hint="Seleccione fecha (*)"
-        android:focusable="false"
         android:clickable="true"
+        android:ems="10"
+        android:focusable="false"
+        android:hint="Seleccione fecha (*)"
         android:inputType="none"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextText4" />
@@ -78,6 +79,7 @@
         android:ems="10"
         android:hint="Ingrese comentario (opcional)"
         android:inputType="text"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextDate" />

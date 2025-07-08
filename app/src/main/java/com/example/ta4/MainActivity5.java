@@ -14,31 +14,30 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity5 extends AppCompatActivity {
 
-    RecyclerView recyclerViewCategorias;
-    CategoriaAdapter categoriaAdapter;
-    public static List<Categoria> listaCategorias = new ArrayList<>();
+    private RecyclerView recyclerViewCategorias;
+    private CategoriaAdapter categoriaAdapter;
+    private List<Categoria> listaCategorias = new ArrayList<>();
+    private AppDatabase db;
+    private ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main5);
 
+        db = AppDatabase.getInstance(getApplicationContext());
+
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setTitle("Categorías");
 
-        if (listaCategorias.isEmpty()) {
-            listaCategorias.add(new Categoria("Comida"));
-            listaCategorias.add(new Categoria("Transporte"));
-            listaCategorias.add(new Categoria("Ocio"));
-        }
-
         recyclerViewCategorias = findViewById(R.id.recyclerViewCategorias);
         categoriaAdapter = new CategoriaAdapter(listaCategorias);
-
         recyclerViewCategorias.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewCategorias.setAdapter(categoriaAdapter);
     }
@@ -46,9 +45,18 @@ public class MainActivity5 extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (categoriaAdapter != null) {
-            categoriaAdapter.notifyDataSetChanged();
-        }
+        cargarCategorias();
+    }
+
+    private void cargarCategorias() {
+        databaseExecutor.execute(() -> {
+            List<Categoria> categoriasDesdeDB = db.categoriaDao().getAll();
+            runOnUiThread(() -> {
+                listaCategorias.clear();
+                listaCategorias.addAll(categoriasDesdeDB);
+                categoriaAdapter.notifyDataSetChanged();
+            });
+        });
     }
 
     @Override

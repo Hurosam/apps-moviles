@@ -30,6 +30,14 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Categoria categoriaActual = listaCategorias.get(position);
         holder.textViewNombre.setText(categoriaActual.getNombre());
+
+        // Asignamos el OnClickListener aquí
+        holder.itemView.setOnClickListener(v -> {
+            Context context = v.getContext();
+            Intent intent = new Intent(context, MainActivity7.class);
+            intent.putExtra("CATEGORIA_ID", categoriaActual.getId());
+            context.startActivity(intent);
+        });
     }
 
     @Override
@@ -43,16 +51,6 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.View
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewNombre = itemView.findViewById(R.id.item_nombre_categoria);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Context context = v.getContext();
-                    Intent intent = new Intent(context, MainActivity7.class);
-                    intent.putExtra("CATEGORIA_POSITION", getAdapterPosition());
-                    context.startActivity(intent);
-                }
-            });
         }
     }
 }

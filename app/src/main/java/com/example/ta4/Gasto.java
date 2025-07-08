@@ -1,6 +1,12 @@
 package com.example.ta4;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "gastos")
 public class Gasto {
+    @PrimaryKey(autoGenerate = true)
+    public int id;
     private double monto;
     private String categoria;
     private String etiqueta;
@@ -13,6 +19,14 @@ public class Gasto {
         this.etiqueta = etiqueta;
         this.fecha = fecha;
         this.descripcion = descripcion;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public double getMonto() {

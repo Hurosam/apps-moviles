@@ -1,10 +1,25 @@
 package com.example.ta4;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "categorias")
 public class Categoria {
+    @PrimaryKey(autoGenerate = true)
+    public int id;
+
     private String nombre;
 
     public Categoria(String nombre) {
         this.nombre = nombre;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNombre() {

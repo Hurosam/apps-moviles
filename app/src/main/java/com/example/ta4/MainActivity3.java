@@ -14,31 +14,30 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity3 extends AppCompatActivity {
 
-    RecyclerView recyclerView;
-    RecyclerAdapter recyclerAdapter;
-    public static List<Gasto> listaGastos = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private RecyclerAdapter recyclerAdapter;
+    private List<Gasto> listaGastos = new ArrayList<>();
+    private AppDatabase db;
+    private ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main3);
 
+        db = AppDatabase.getInstance(getApplicationContext());
+
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setTitle("Mis Gastos");
 
-        if (listaGastos.isEmpty()) {
-            listaGastos.add(new Gasto(20.50, "Comida", "cena","24/05/2024", "Almuerzo"));
-            listaGastos.add(new Gasto(18.00, "Transporte", "taxi","24/05/2024", "Taxi al trabajo"));
-            listaGastos.add(new Gasto(50.00, "Ocio", "cine","23/05/2024", "Entrada al cine"));
-        }
-
         recyclerView = findViewById(R.id.recyclerViewGastos);
         recyclerAdapter = new RecyclerAdapter(listaGastos);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(recyclerAdapter);
     }
@@ -46,9 +45,18 @@ public class MainActivity3 extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (recyclerAdapter != null) {
-            recyclerAdapter.notifyDataSetChanged();
-        }
+        cargarGastos();
+    }
+
+    private void cargarGastos() {
+        databaseExecutor.execute(() -> {
+            List<Gasto> gastosDesdeDB = db.gastoDao().getAll();
+            runOnUiThread(() -> {
+                listaGastos.clear();
+                listaGastos.addAll(gastosDesdeDB);
+                recyclerAdapter.notifyDataSetChanged();
+            });
+        });
     }
 
     @Override
@@ -61,7 +69,6 @@ public class MainActivity3 extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
-
         if (itemId == R.id.action_inicio) {
             Toast.makeText(this, "Ya estás en Inicio", Toast.LENGTH_SHORT).show();
             return true;
@@ -86,7 +93,7 @@ public class MainActivity3 extends AppCompatActivity {
     }
 
     public void gastos(View view) {
-        Intent intent = new Intent(MainActivity3.this, MainActivity6.class);
+        Intent intent = new Intent(this, MainActivity6.class);
         startActivity(intent);
     }
 }
