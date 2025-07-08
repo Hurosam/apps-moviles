@@ -7,10 +7,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class MainActivity2 extends AppCompatActivity {
 
     private EditText editTextUsuario;
     private EditText editTextPassword;
+    private AppDatabase db;
+    private ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,6 +24,7 @@ public class MainActivity2 extends AppCompatActivity {
 
         editTextUsuario = findViewById(R.id.editTextText);
         editTextPassword = findViewById(R.id.editTextTextPassword);
+        db = AppDatabase.getInstance(getApplicationContext());
     }
 
     public void registrar(View view) {
@@ -27,15 +33,27 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     public void principal2(View view) {
-        String usuario = editTextUsuario.getText().toString();
-        String password = editTextPassword.getText().toString();
+        String usuario = editTextUsuario.getText().toString().trim();
+        String password = editTextPassword.getText().toString().trim();
 
         if (usuario.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Por favor, ingrese usuario y contraseña", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Intent intent = new Intent(MainActivity2.this, MainActivity3.class);
-        startActivity(intent);
+        databaseExecutor.execute(() -> {
+            Usuario user = db.usuarioDao().findByCredentials(usuario, password);
+
+            runOnUiThread(() -> {
+                if (user != null) {
+                    Toast.makeText(MainActivity2.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity2.this, MainActivity3.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(MainActivity2.this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
     }
 }
