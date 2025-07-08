@@ -1,6 +1,8 @@
 package com.example.ta4;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,11 +26,21 @@ public class MainActivity3 extends AppCompatActivity {
     private List<Gasto> listaGastos = new ArrayList<>();
     private AppDatabase db;
     private ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+    private int currentUserId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main3);
+
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        currentUserId = prefs.getInt("LOGGED_IN_USER_ID", -1);
+
+        if (currentUserId == -1) {
+            Toast.makeText(this, "Error de sesión. Por favor, inicie sesión de nuevo.", Toast.LENGTH_LONG).show();
+            logout();
+            return;
+        }
 
         db = AppDatabase.getInstance(getApplicationContext());
 
@@ -49,8 +61,9 @@ public class MainActivity3 extends AppCompatActivity {
     }
 
     private void cargarGastos() {
+        if (currentUserId == -1) return;
         databaseExecutor.execute(() -> {
-            List<Gasto> gastosDesdeDB = db.gastoDao().getAll();
+            List<Gasto> gastosDesdeDB = db.gastoDao().getAll(currentUserId);
             runOnUiThread(() -> {
                 listaGastos.clear();
                 listaGastos.addAll(gastosDesdeDB);
@@ -81,16 +94,26 @@ public class MainActivity3 extends AppCompatActivity {
             startActivity(intent);
             return true;
         } else if (itemId == R.id.action_logout) {
-            Intent intent = new Intent(this, MainActivity2.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
-            Toast.makeText(this, "Sesión cerrada", Toast.LENGTH_SHORT).show();
+            logout();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
     }
+
+    private void logout() {
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove("LOGGED_IN_USER_ID");
+        editor.apply();
+
+        Intent intent = new Intent(this, MainActivity2.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+        Toast.makeText(this, "Sesión cerrada", Toast.LENGTH_SHORT).show();
+    }
+
 
     public void gastos(View view) {
         Intent intent = new Intent(this, MainActivity6.class);

@@ -9,8 +9,8 @@ import java.util.List;
 
 @Dao
 public interface GastoDao {
-    @Query("SELECT * FROM gastos ORDER BY id DESC")
-    List<Gasto> getAll();
+    @Query("SELECT * FROM gastos WHERE usuarioId = :userId ORDER BY id DESC")
+    List<Gasto> getAll(int userId);
 
     @Query("SELECT * FROM gastos WHERE id = :gastoId LIMIT 1")
     Gasto findById(int gastoId);

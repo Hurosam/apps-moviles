@@ -1,6 +1,8 @@
 package com.example.ta4;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -46,6 +48,11 @@ public class MainActivity2 extends AppCompatActivity {
 
             runOnUiThread(() -> {
                 if (user != null) {
+                    SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putInt("LOGGED_IN_USER_ID", user.getId());
+                    editor.apply();
+
                     Toast.makeText(MainActivity2.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(MainActivity2.this, MainActivity3.class);
                     startActivity(intent);

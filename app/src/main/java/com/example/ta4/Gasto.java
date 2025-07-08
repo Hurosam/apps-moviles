@@ -1,9 +1,14 @@
 package com.example.ta4;
 
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "gastos")
+@Entity(tableName = "gastos",
+        foreignKeys = @ForeignKey(entity = Usuario.class,
+                parentColumns = "id",
+                childColumns = "usuarioId",
+                onDelete = ForeignKey.CASCADE))
 public class Gasto {
     @PrimaryKey(autoGenerate = true)
     public int id;
@@ -12,13 +17,15 @@ public class Gasto {
     private String etiqueta;
     private String fecha;
     private String descripcion;
+    public int usuarioId;
 
-    public Gasto(double monto, String categoria, String etiqueta, String fecha, String descripcion) {
+    public Gasto(double monto, String categoria, String etiqueta, String fecha, String descripcion, int usuarioId) {
         this.monto = monto;
         this.categoria = categoria;
         this.etiqueta = etiqueta;
         this.fecha = fecha;
         this.descripcion = descripcion;
+        this.usuarioId = usuarioId;
     }
 
     public int getId() {
@@ -67,5 +74,13 @@ public class Gasto {
 
     public void setEtiqueta(String etiqueta) {
         this.etiqueta = etiqueta;
+    }
+
+    public int getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(int usuarioId) {
+        this.usuarioId = usuarioId;
     }
 }

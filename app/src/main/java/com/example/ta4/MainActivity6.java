@@ -1,7 +1,9 @@
 package com.example.ta4;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -30,6 +32,7 @@ public class MainActivity6 extends AppCompatActivity {
     private TextView tituloFormulario;
 
     private int gastoId = -1;
+    private int currentUserId = -1;
     private AppDatabase db;
     private ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
     private ArrayAdapter<String> categoriaAdapter;
@@ -40,6 +43,15 @@ public class MainActivity6 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main6);
+
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        currentUserId = prefs.getInt("LOGGED_IN_USER_ID", -1);
+
+        if (currentUserId == -1) {
+            Toast.makeText(this, "Error de sesión", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
         db = AppDatabase.getInstance(getApplicationContext());
 
@@ -91,8 +103,6 @@ public class MainActivity6 extends AppCompatActivity {
         cargarCategoriasEnSpinner();
     }
 
-
-
     private void cargarCategoriasEnSpinner() {
         databaseExecutor.execute(() -> {
             List<Categoria> categoriasDesdeDB = db.categoriaDao().getAll();
@@ -120,7 +130,6 @@ public class MainActivity6 extends AppCompatActivity {
             });
         });
     }
-
 
     private void cargarDatosDelGasto() {
         databaseExecutor.execute(() -> {
@@ -187,7 +196,7 @@ public class MainActivity6 extends AppCompatActivity {
         }
 
         double monto = Double.parseDouble(montoStr);
-        Gasto gasto = new Gasto(monto, categoriaStr, etiquetaStr, fechaStr, descripcionStr);
+        Gasto gasto = new Gasto(monto, categoriaStr, etiquetaStr, fechaStr, descripcionStr, currentUserId);
 
         databaseExecutor.execute(() -> {
             if (gastoId != -1) {
