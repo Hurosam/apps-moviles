@@ -1,6 +1,8 @@
 package com.example.ta4;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,11 +26,21 @@ public class MainActivity5 extends AppCompatActivity {
     private List<Categoria> listaCategorias = new ArrayList<>();
     private AppDatabase db;
     private ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+    private int currentUserId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main5);
+
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        currentUserId = prefs.getInt("LOGGED_IN_USER_ID", -1);
+
+        if (currentUserId == -1) {
+            Toast.makeText(this, "Error de sesión.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         db = AppDatabase.getInstance(getApplicationContext());
 
@@ -49,8 +61,9 @@ public class MainActivity5 extends AppCompatActivity {
     }
 
     private void cargarCategorias() {
+        if (currentUserId == -1) return;
         databaseExecutor.execute(() -> {
-            List<Categoria> categoriasDesdeDB = db.categoriaDao().getAll();
+            List<Categoria> categoriasDesdeDB = db.categoriaDao().getAll(currentUserId);
             runOnUiThread(() -> {
                 listaCategorias.clear();
                 listaCategorias.addAll(categoriasDesdeDB);
@@ -81,6 +94,9 @@ public class MainActivity5 extends AppCompatActivity {
             Toast.makeText(this, "Ya estás en Categorías", Toast.LENGTH_SHORT).show();
             return true;
         } else if (itemId == R.id.action_logout) {
+            // Lógica de logout
+            SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+            prefs.edit().remove("LOGGED_IN_USER_ID").apply();
             Intent intent = new Intent(this, MainActivity2.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);

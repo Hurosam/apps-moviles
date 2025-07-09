@@ -44,30 +44,35 @@ public class MainActivity extends AppCompatActivity {
         }
 
         databaseExecutor.execute(() -> {
-            Usuario existingUser = db.usuarioDao().findByUsername(usuario);
-
-            if (existingUser != null) {
+            if (db.usuarioDao().findByUsername(usuario) != null) {
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "El nombre de usuario ya existe", Toast.LENGTH_SHORT).show());
-            } else {
-                Usuario nuevoUsuario = new Usuario(usuario, password);
-                long newUserId = db.usuarioDao().insert(nuevoUsuario);
+                return;
+            }
+
+            Usuario nuevoUsuario = new Usuario(usuario, password);
+            long newUserId = db.usuarioDao().insert(nuevoUsuario);
+
+            if (newUserId > 0) {
+                String[] defaultCategories = {"Comida", "Transporte", "Salud", "Compras", "Ocio", "Educación", "Hogar", "Otros"};
+                for (String catName : defaultCategories) {
+                    Categoria categoria = new Categoria(catName, (int) newUserId);
+                    db.categoriaDao().insert(categoria);
+                }
 
                 runOnUiThread(() -> {
-                    if (newUserId > 0) {
-                        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putInt("LOGGED_IN_USER_ID", (int) newUserId);
-                        editor.apply();
+                    SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putInt("LOGGED_IN_USER_ID", (int) newUserId);
+                    editor.apply();
 
-                        Toast.makeText(MainActivity.this, "Registro exitoso. ¡Bienvenido!", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(MainActivity.this, MainActivity3.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Toast.makeText(MainActivity.this, "Error al registrar el usuario.", Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(MainActivity.this, "Registro exitoso. ¡Bienvenido!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity.this, MainActivity3.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
                 });
+            } else {
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Error al registrar el usuario.", Toast.LENGTH_SHORT).show());
             }
         });
     }

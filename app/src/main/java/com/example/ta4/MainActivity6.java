@@ -87,7 +87,6 @@ public class MainActivity6 extends AppCompatActivity {
                 if (AGREGAR_CATEGORIA_OPCION.equals(seleccion)) {
                     Intent intent = new Intent(MainActivity6.this, MainActivity7.class);
                     startActivity(intent);
-                    spinnerCategoria.setSelection(0);
                 }
             }
 
@@ -104,11 +103,13 @@ public class MainActivity6 extends AppCompatActivity {
     }
 
     private void cargarCategoriasEnSpinner() {
+        if (currentUserId == -1) return;
         databaseExecutor.execute(() -> {
-            List<Categoria> categoriasDesdeDB = db.categoriaDao().getAll();
+            List<Categoria> categoriasDesdeDB = db.categoriaDao().getAll(currentUserId);
             runOnUiThread(() -> {
                 String seleccionPrevia = null;
-                if (spinnerCategoria.getSelectedItem() != null) {
+                if (spinnerCategoria.getSelectedItem() != null &&
+                        !spinnerCategoria.getSelectedItem().toString().equals(AGREGAR_CATEGORIA_OPCION)) {
                     seleccionPrevia = spinnerCategoria.getSelectedItem().toString();
                 }
 
@@ -121,7 +122,7 @@ public class MainActivity6 extends AppCompatActivity {
 
                 if (gastoId != -1) {
                     cargarDatosDelGasto();
-                } else if (seleccionPrevia != null && !AGREGAR_CATEGORIA_OPCION.equals(seleccionPrevia)) {
+                } else if (seleccionPrevia != null) {
                     int oldPosition = categoriaAdapter.getPosition(seleccionPrevia);
                     if (oldPosition >= 0) {
                         spinnerCategoria.setSelection(oldPosition);
@@ -155,7 +156,8 @@ public class MainActivity6 extends AppCompatActivity {
         int anio = c.get(Calendar.YEAR);
         int mes = c.get(Calendar.MONTH);
         int dia = c.get(Calendar.DAY_OF_MONTH);
-        editTextFecha.setText(dia + "/" + (mes + 1) + "/" + anio);
+        String fechaFormateada = dia + "/" + (mes + 1) + "/" + anio;
+        editTextFecha.setText(fechaFormateada);
     }
 
     private void mostrarDialogoFecha() {

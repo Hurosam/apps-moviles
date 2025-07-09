@@ -1,5 +1,7 @@
 package com.example.ta4;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +20,7 @@ public class MainActivity7 extends AppCompatActivity {
     private Button botonEliminar;
 
     private int categoriaId = -1;
+    private int currentUserId = -1;
     private AppDatabase db;
     private ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
@@ -25,6 +28,15 @@ public class MainActivity7 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main7);
+
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        currentUserId = prefs.getInt("LOGGED_IN_USER_ID", -1);
+
+        if (currentUserId == -1) {
+            Toast.makeText(this, "Error de sesión.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         db = AppDatabase.getInstance(getApplicationContext());
 
@@ -74,7 +86,7 @@ public class MainActivity7 extends AppCompatActivity {
                     db.categoriaDao().update(categoria);
                 }
             } else {
-                Categoria nuevaCategoria = new Categoria(nombreCategoria);
+                Categoria nuevaCategoria = new Categoria(nombreCategoria, currentUserId);
                 db.categoriaDao().insert(nuevaCategoria);
             }
             finish();
