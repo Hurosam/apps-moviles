@@ -23,4 +23,7 @@ public interface GastoDao {
 
     @Delete
     void delete(Gasto gasto);
+
+    @Query("DELETE FROM gastos WHERE id = :gastoId")
+    void deleteById(int gastoId);
 }

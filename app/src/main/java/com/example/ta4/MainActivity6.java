@@ -10,14 +10,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,6 +30,7 @@ public class MainActivity6 extends AppCompatActivity {
     private EditText editTextDescripcion;
     private EditText editTextEtiqueta;
     private Button botonGuardar;
+    private Button botonEliminar;
     private TextView tituloFormulario;
 
     private int gastoId = -1;
@@ -44,6 +46,9 @@ public class MainActivity6 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main6);
 
+        ImageButton btnBack = findViewById(R.id.btn_back_gasto);
+        btnBack.setOnClickListener(v -> onBackPressed());
+
         SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
         currentUserId = prefs.getInt("LOGGED_IN_USER_ID", -1);
 
@@ -54,13 +59,13 @@ public class MainActivity6 extends AppCompatActivity {
         }
 
         db = AppDatabase.getInstance(getApplicationContext());
-
         editTextMonto = findViewById(R.id.editTextNumberDecimal);
         spinnerCategoria = findViewById(R.id.spinnerCategoria);
         editTextFecha = findViewById(R.id.editTextDate);
         editTextDescripcion = findViewById(R.id.editTextText3);
         editTextEtiqueta = findViewById(R.id.editTextText4);
         botonGuardar = findViewById(R.id.button);
+        botonEliminar = findViewById(R.id.button_eliminar_gasto);
         tituloFormulario = findViewById(R.id.textView6);
 
         categoriaAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, nombresCategorias);
@@ -72,14 +77,15 @@ public class MainActivity6 extends AppCompatActivity {
         if (gastoId != -1) {
             tituloFormulario.setText("Editar Gasto");
             botonGuardar.setText("Actualizar Gasto");
+            botonEliminar.setVisibility(View.VISIBLE);
         } else {
             tituloFormulario.setText("Agregar Gasto");
             botonGuardar.setText("Guardar Gasto");
+            botonEliminar.setVisibility(View.GONE);
             ponerFechaActual();
         }
 
         editTextFecha.setOnClickListener(v -> mostrarDialogoFecha());
-
         spinnerCategoria.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -89,10 +95,8 @@ public class MainActivity6 extends AppCompatActivity {
                     startActivity(intent);
                 }
             }
-
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
 
@@ -141,7 +145,6 @@ public class MainActivity6 extends AppCompatActivity {
                     editTextFecha.setText(gastoAEditar.getFecha());
                     editTextDescripcion.setText(gastoAEditar.getDescripcion());
                     editTextEtiqueta.setText(gastoAEditar.getEtiqueta());
-
                     int spinnerPosition = categoriaAdapter.getPosition(gastoAEditar.getCategoria());
                     if (spinnerPosition >= 0) {
                         spinnerCategoria.setSelection(spinnerPosition);
@@ -156,7 +159,7 @@ public class MainActivity6 extends AppCompatActivity {
         int anio = c.get(Calendar.YEAR);
         int mes = c.get(Calendar.MONTH);
         int dia = c.get(Calendar.DAY_OF_MONTH);
-        String fechaFormateada = dia + "/" + (mes + 1) + "/" + anio;
+        String fechaFormateada = String.format(Locale.getDefault(), "%04d-%02d-%02d", anio, mes + 1, dia);
         editTextFecha.setText(fechaFormateada);
     }
 
@@ -168,34 +171,25 @@ public class MainActivity6 extends AppCompatActivity {
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                 (view, year, monthOfYear, dayOfMonth) -> {
-                    String fechaSeleccionada = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year;
+                    String fechaSeleccionada = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth);
                     editTextFecha.setText(fechaSeleccionada);
                 }, anio, mes, dia);
+
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
         datePickerDialog.show();
     }
 
     public void guardar(View view) {
         String montoStr = editTextMonto.getText().toString();
+        if (montoStr.isEmpty()) {
+            Toast.makeText(this, "Monto es obligatorio", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String fechaStr = editTextFecha.getText().toString();
         String descripcionStr = editTextDescripcion.getText().toString();
         String etiquetaStr = editTextEtiqueta.getText().toString();
-
-        if (spinnerCategoria.getSelectedItem() == null) {
-            Toast.makeText(this, "No hay categorías disponibles. Por favor, cree una primero.", Toast.LENGTH_LONG).show();
-            return;
-        }
-
         String categoriaStr = spinnerCategoria.getSelectedItem().toString();
-
-        if (AGREGAR_CATEGORIA_OPCION.equals(categoriaStr)) {
-            Toast.makeText(this, "Por favor, seleccione una categoría válida.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (montoStr.isEmpty() || categoriaStr.isEmpty()) {
-            Toast.makeText(this, "Monto y Categoría son obligatorios", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         double monto = Double.parseDouble(montoStr);
         Gasto gasto = new Gasto(monto, categoriaStr, etiquetaStr, fechaStr, descripcionStr, currentUserId);
@@ -209,5 +203,15 @@ public class MainActivity6 extends AppCompatActivity {
             }
             finish();
         });
+    }
+
+    public void eliminarGasto(View view) {
+        if (gastoId != -1) {
+            databaseExecutor.execute(() -> {
+                db.gastoDao().deleteById(gastoId);
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Gasto eliminado", Toast.LENGTH_SHORT).show());
+                finish();
+            });
+        }
     }
 }

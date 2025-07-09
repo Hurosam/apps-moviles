@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +30,9 @@ public class MainActivity7 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main7);
 
+        ImageButton btnBack = findViewById(R.id.btn_back_categoria);
+        btnBack.setOnClickListener(v -> onBackPressed());
+
         SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
         currentUserId = prefs.getInt("LOGGED_IN_USER_ID", -1);
 
@@ -39,7 +43,6 @@ public class MainActivity7 extends AppCompatActivity {
         }
 
         db = AppDatabase.getInstance(getApplicationContext());
-
         editTextNombreCategoria = findViewById(R.id.editTextText5);
         tituloFormulario = findViewById(R.id.textView7);
         botonGuardar = findViewById(R.id.button7);
@@ -71,7 +74,7 @@ public class MainActivity7 extends AppCompatActivity {
     }
 
     public void guardarCategoria(View view) {
-        String nombreCategoria = editTextNombreCategoria.getText().toString();
+        String nombreCategoria = editTextNombreCategoria.getText().toString().trim();
 
         if (nombreCategoria.isEmpty()) {
             Toast.makeText(this, "Por favor, ingrese un nombre", Toast.LENGTH_SHORT).show();
